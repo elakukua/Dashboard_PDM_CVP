@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDM CVP for GN — Dashboard</title>
+<style>
+:root{
+  --o:#FF5515; --o-2:#FF8A4C; --o-3:#FFB38A; --o-4:#FFD9C2;
+  --d:#111222; --d-2:#4A4A55; --d-3:#8C8C99; --d-4:#BFBFC7;
+  --bg:#EDEDF1; --page:#F5F5F7; --card:#FFFFFF; --line:#E9E9EE; --grid:#F2F2F5;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);
+  font-family:"Segoe UI","Segoe UI Web (West European)",-apple-system,system-ui,sans-serif;
+  color:var(--d);font-size:13px;-webkit-font-smoothing:antialiased}
+.frame{max-width:1440px;margin:22px auto;background:var(--page);border-radius:14px;
+  box-shadow:0 1px 3px rgba(17,18,34,.06),0 12px 32px rgba(17,18,34,.08);
+  display:grid;grid-template-columns:132px 1fr;overflow:hidden;min-height:820px}
+@media(max-width:820px){.frame{grid-template-columns:1fr}}
+
+/* ---------- sidebar ---------- */
+aside{background:var(--card);border-right:1px solid var(--line);padding:16px 0;
+  display:flex;flex-direction:column}
+.mark{margin:2px 16px 26px;font-size:10.5px;font-weight:700;line-height:1.35;
+  color:var(--d);letter-spacing:.2px}
+aside nav{display:flex;flex-direction:column}
+aside nav button{appearance:none;border:0;background:none;font:inherit;font-size:11.5px;
+  color:var(--d-3);text-align:left;padding:9px 14px 9px 16px;cursor:pointer;
+  border-left:3px solid transparent;line-height:1.35}
+aside nav button:hover{color:var(--d-2);background:var(--page)}
+aside nav button[aria-current="true"]{color:var(--o);font-weight:600;
+  border-left-color:var(--o);background:#FFF6F2}
+aside nav button:focus-visible{outline:2px solid var(--o);outline-offset:-2px}
+aside .by{margin-top:auto;padding:0 16px;font-size:8.5px;color:var(--d-4);
+  font-style:italic;line-height:1.5}
+
+/* ---------- main ---------- */
+main{padding:20px 24px 26px;min-width:0}
+.top{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.top h1{margin:0;font-size:20px;font-weight:700;letter-spacing:-.2px}
+.top .sub{font-size:9.5px;color:var(--d-3);font-style:italic;margin-top:2px}
+.top .rt{margin-left:auto;display:flex;align-items:center;gap:9px}
+
+/* ---------- parameter / KPI row ---------- */
+.params{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:11px}
+@media(max-width:1100px){.params{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.params{grid-template-columns:repeat(2,1fr)}}
+.pm{background:var(--page);border:1px solid var(--line);border-radius:9px;
+  padding:9px 11px 13px;text-align:center}
+.pm .tab{background:var(--card);border:1px solid var(--line);border-radius:6px;
+  font-size:10px;font-weight:600;color:var(--d-2);padding:5px 6px;margin-bottom:9px;
+  line-height:1.25}
+.pm.on .tab{background:var(--d);color:#fff;border-color:var(--d)}
+.pm .big{font-size:29px;font-weight:700;line-height:1.05;letter-spacing:-.5px;
+  font-variant-numeric:tabular-nums}
+.pm .big.sm{font-size:20px}
+
+/* ---------- cards ---------- */
+.row{display:grid;gap:9px;margin-bottom:9px}
+.r-2{grid-template-columns:1fr 1fr}
+.r-3{grid-template-columns:1fr 1fr 1fr}
+.r-21{grid-template-columns:1.62fr 1fr}
+.r-12{grid-template-columns:1fr 1.62fr}
+.r-211{grid-template-columns:1.5fr 1fr 1fr}
+@media(max-width:1100px){.r-2,.r-3,.r-21,.r-12,.r-211{grid-template-columns:1fr}}
+.c{background:var(--card);border:1px solid var(--line);border-radius:10px;
+  padding:13px 15px 14px;position:relative;min-width:0}
+.c h3{margin:0;font-size:12.5px;font-weight:600;line-height:1.3;padding-right:22px}
+.c .st{font-size:9px;color:var(--d-3);font-style:italic;margin:2px 0 12px}
+.c .fn{margin-top:11px;padding-top:9px;border-top:1px solid var(--grid);
+  font-size:9px;color:var(--d-3);line-height:1.55}
+.c .fn b{color:var(--d-2)}
+.tbl-tag{position:absolute;top:11px;right:12px;background:#FFF1EA;color:#B03D06;
+  border-radius:4px;padding:1px 6px;font-size:8.5px;font-weight:700;letter-spacing:.3px}
+
+/* ---------- horizontal bars ---------- */
+.hb{display:grid;grid-template-columns:auto 1fr;gap:7px 10px;align-items:center}
+.hb .k{font-size:10.5px;color:var(--d-2);text-align:right;white-space:nowrap;line-height:1.25}
+.hb .b{position:relative;height:17px;display:flex;align-items:center}
+.hb .b i{display:block;height:17px;border-radius:3px;background:var(--o);min-width:2px}
+.hb .b i.g{background:var(--d-4)} .hb .b i.dk{background:var(--d)}
+.hb .b i.l{background:var(--o-3)} .hb .b i.ll{background:var(--o-4)}
+.hb .b span{font-size:10px;font-weight:600;margin-left:7px;white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.hb .b span em{font-style:normal;font-weight:400;color:var(--d-3);font-size:9px}
+
+/* ---------- funnel ---------- */
+.fnl{display:flex;flex-direction:column;gap:6px}
+.fnl .s{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px}
+.fnl .bar{height:28px;border-radius:4px;background:var(--o);display:flex;align-items:center;
+  padding-left:10px;color:#fff;font-size:10.5px;font-weight:600}
+.fnl .bar.f2{background:var(--o-2)} .fnl .bar.f3{background:var(--o-3);color:var(--d)}
+.fnl .bar.f4{background:var(--o-4);color:var(--d)}
+.fnl .n{font-size:10px;color:var(--d-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.fnl .drop{font-size:9px;color:var(--o);text-align:right;padding-right:2px}
+
+/* ---------- donut ---------- */
+.dn{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.dn .ring{width:132px;height:132px;border-radius:50%;flex:0 0 auto;position:relative;
+  display:grid;place-items:center}
+.dn .ring::after{content:"";position:absolute;inset:23px;background:var(--card);border-radius:50%}
+.dn .ctr{position:relative;z-index:1;text-align:center}
+.dn .ctr b{display:block;font-size:19px;font-weight:700;line-height:1}
+.dn .ctr small{font-size:8.5px;color:var(--d-3)}
+.dn ul{list-style:none;margin:0;padding:0;font-size:10.5px;min-width:130px}
+.dn li{display:flex;align-items:center;gap:7px;padding:3px 0;color:var(--d-2)}
+.dn li i{width:9px;height:9px;border-radius:2px;flex:0 0 auto}
+.dn li b{margin-left:auto;font-variant-numeric:tabular-nums}
+.dn li small{color:var(--d-3);font-size:9px}
+
+/* ---------- column trend ---------- */
+.col{display:flex;align-items:flex-end;gap:4px;height:150px;padding-top:14px}
+.col .cc{flex:1;display:flex;flex-direction:column;justify-content:flex-end;
+  align-items:center;gap:4px;min-width:0}
+.col .cc i{width:100%;max-width:26px;background:var(--o);border-radius:3px 3px 0 0;display:block}
+.col .cc i.g{background:var(--d-4)}
+.col .cc u{font-size:8.5px;color:var(--d-3);text-decoration:none;white-space:nowrap}
+.col .cc b{font-size:9px;font-weight:600}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;font-size:10.5px}
+th{text-align:left;font-size:9px;font-weight:600;color:var(--d-3);padding:0 8px 7px;
+  border-bottom:1px solid var(--line);line-height:1.3;vertical-align:bottom}
+th.n,td.n{text-align:right;font-variant-numeric:tabular-nums}
+td{padding:6px 8px;border-bottom:1px solid var(--grid);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+.mini{position:relative;display:block;height:13px;background:var(--grid);border-radius:2px;
+  min-width:44px}
+.mini i{position:absolute;left:0;top:0;bottom:0;background:var(--o);border-radius:2px}
+.mini i.g{background:var(--d-4)}
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:600}
+.pill.o{background:#FFF1EA;color:#B03D06} .pill.d{background:#EFEFF3;color:var(--d-2)}
+.pill.hi{background:var(--o);color:#fff} .pill.lo{background:var(--d);color:#fff}
+
+/* ---------- scatter ---------- */
+.sc{position:relative;height:190px;margin:6px 0 2px;border-left:1px solid var(--line);
+  border-bottom:1px solid var(--line)}
+.sc .g{position:absolute;left:0;right:0;height:1px;background:var(--grid)}
+.sc .p{position:absolute;border-radius:50%;background:var(--o);opacity:.85;
+  transform:translate(-50%,50%)}
+.sc .p.d{background:var(--d);opacity:.7}
+.sc .t{position:absolute;transform:translate(-50%,50%);font-size:8.5px;color:var(--d-2);
+  white-space:nowrap}
+.ax{display:flex;justify-content:space-between;font-size:8.5px;color:var(--d-4);margin-top:4px}
+
+/* ---------- matrix / heat ---------- */
+.heat td.h{text-align:center;font-weight:600;font-size:9.5px;border-radius:3px}
+/* ---------- misc ---------- */
+.pending{background:repeating-linear-gradient(45deg,#FAFAFC,#FAFAFC 7px,#F2F2F5 7px,#F2F2F5 14px);
+  border:1px dashed var(--d-4);border-radius:8px;padding:18px 16px;text-align:center;
+  font-size:10px;color:var(--d-3);line-height:1.65}
+.pending b{color:var(--d-2)}
+.status{background:var(--d);color:#fff;border-radius:9px;padding:10px 14px;margin-bottom:14px;
+  font-size:10px;line-height:1.6}
+.status b{color:var(--o-3)}
+.note{background:#FFF6F2;border:1px solid #FFE0D0;border-radius:9px;padding:11px 14px;
+  font-size:10px;color:#8A3A0E;line-height:1.6;margin-bottom:11px}
+.note b{color:#6B2A05}
+.pg{display:none} .pg.on{display:block}
+.thumbs{margin-top:16px;border-top:1px solid var(--line);padding-top:13px}
+.thumbs h4{margin:0 0 9px;font-size:12px;font-weight:700}
+.tstrip{display:flex;gap:9px;overflow-x:auto;padding-bottom:5px}
+.th{flex:0 0 154px;height:60px;background:var(--card);border:1px solid var(--line);
+  border-radius:7px;padding:7px;font-size:7.5px;color:var(--d-4);cursor:pointer;
+  display:flex;flex-direction:column;gap:4px}
+.th:hover{border-color:var(--o)}
+.th .tt{font-size:8px;font-weight:700;color:var(--d-2);line-height:1.25}
+.foot{margin-top:14px;font-size:9px;color:var(--d-4);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="frame">
+
+<aside>
+  <div class="mark">PDM CVP<br>for GN</div>
+  <nav id="nav"></nav>
+  <div class="by">Report &amp; Design:<br>PEARL Zonal Kalbar</div>
+</aside>
+
+<main>
+
+<div class="status">
+  <b>Data preliminer.</b> 42 dari target 300 responden, 7 dari 21 Area Program.
+  Seluruh angka masih berubah seiring pengumpulan data berjalan, dan halaman ini
+  belum memuat kesimpulan maupun rekomendasi.
+</div>
+
+<!-- ==================== P1 OVERVIEW ==================== -->
+<section class="pg on" id="p1">
+  <div class="top">
+    <div>
+      <h1>CVP for GN — Overview</h1>
+      <div class="sub">Ringkasan 7 area asesmen · 21 Area Program</div>
+    </div>
+  </div>
+
+  <div class="params">
+    <div class="pm"><div class="tab">Responden</div><div class="big">42</div></div>
+    <div class="pm on"><div class="tab">Informasi Lengkap</div><div class="big">64,3%</div></div>
+    <div class="pm"><div class="tab">Nilai GN Median</div><div class="big sm">Rp 1,33 jt</div></div>
+    <div class="pm"><div class="tab">Kepuasan</div><div class="big">4,6</div></div>
+    <div class="pm"><div class="tab">Akuntabilitas</div><div class="big">61,9%</div></div>
+  </div>
+
+  <div class="row r-21">
+    <div class="c">
+      <span class="tbl-tag">TABEL 1 · 5 · 9 · 11</span>
+      <h3>Bagaimana kinerja CVP for GN di tiap area asesmen?</h3>
+      <div class="st">Skor % positif per area asesmen · basis 42 responden</div>
+      <div class="hb" style="grid-template-columns:158px 1fr">
+        <span class="k">5 · Kepuasan</span><span class="b"><i style="width:92.9%"></i><span>92,9% <em>39/42</em></span></span>
+        <span class="k">3 · Proses Distribusi</span><span class="b"><i style="width:88.1%"></i><span>88,1% <em>37/42</em></span></span>
+        <span class="k">4 · Penggunaan Dana</span><span class="b"><i style="width:83.3%"></i><span>83,3% <em>35/42</em></span></span>
+        <span class="k">1 · Penyediaan Informasi</span><span class="b"><i class="l" style="width:64.3%"></i><span>64,3% <em>27/42</em></span></span>
+        <span class="k">6 · Akuntabilitas</span><span class="b"><i class="l" style="width:61.9%"></i><span>61,9% <em>26/42</em></span></span>
+        <span class="k">2 · Kinerja FSP</span><span class="b"><i class="l" style="width:46.7%"></i><span>46,7% <em>14/30</em></span></span>
+        <span class="k">7 · Compliance</span><span class="b"><i class="g" style="width:0%"></i><span><em>menunggu document review</em></span></span>
+      </div>
+      <div class="fn">Basis tiap area mengikuti subset responden yang relevan, bukan selalu 42. Area 7 menunggu Document Review.</div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 8</span>
+      <h3>Untuk apa dana GN dibelanjakan?</h3>
+      <div class="st">Jumlah RC per kategori · multi-respons · basis 42</div>
+      <div class="hb" style="grid-template-columns:96px 1fr">
+        <span class="k">Pendidikan anak</span><span class="b"><i style="width:83.3%"></i><span>35</span></span>
+        <span class="k">Pakaian</span><span class="b"><i style="width:76.2%"></i><span>32</span></span>
+        <span class="k">Alas kaki</span><span class="b"><i style="width:66.7%"></i><span>28</span></span>
+        <span class="k">Pangan pokok</span><span class="b"><i style="width:54.8%"></i><span>23</span></span>
+        <span class="k">Tabungan</span><span class="b"><i class="l" style="width:38.1%"></i><span>16</span></span>
+        <span class="k">Transportasi</span><span class="b"><i class="ll" style="width:11.9%"></i><span>5</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row r-211">
+    <div class="c">
+      <span class="tbl-tag">TABEL 5</span>
+      <h3>Jumlah wawancara per tanggal pengumpulan data</h3>
+      <div class="st">Basis 42 responden</div>
+      <div class="col">
+        <div class="cc"><b>4</b><i style="height:44%"></i><u>20 Agu</u></div>
+        <div class="cc"><b>3</b><i style="height:33%"></i><u>21 Agu</u></div>
+        <div class="cc"><b>4</b><i style="height:44%"></i><u>22 Agu</u></div>
+        <div class="cc"><b>2</b><i style="height:22%"></i><u>26 Agu</u></div>
+        <div class="cc"><b>5</b><i style="height:56%"></i><u>27 Agu</u></div>
+        <div class="cc"><b>5</b><i style="height:56%"></i><u>28 Agu</u></div>
+        <div class="cc"><b>5</b><i style="height:56%"></i><u>29 Agu</u></div>
+        <div class="cc"><b>2</b><i style="height:22%"></i><u>31 Agu</u></div>
+        <div class="cc"><b>2</b><i style="height:22%"></i><u>1 Sep</u></div>
+        <div class="cc"><b>4</b><i style="height:44%"></i><u>2 Sep</u></div>
+        <div class="cc"><b>2</b><i style="height:22%"></i><u>7 Sep</u></div>
+        <div class="cc"><b>4</b><i style="height:44%"></i><u>8 Sep</u></div>
+      </div>
+      <div class="fn">Menampilkan tanggal wawancara, bukan tanggal pencairan dana.</div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 16</span>
+      <h3>Siapa penerima GN?</h3>
+      <div class="st">Sebaran jenis kelamin anak penerima</div>
+      <div class="dn">
+        <div class="ring" style="background:conic-gradient(var(--o) 0 61.9%, var(--d-4) 61.9% 100%)">
+          <div class="ctr"><b>42</b><small>anak penerima</small></div>
+        </div>
+        <ul>
+          <li><i style="background:var(--o)"></i>Perempuan <b>26</b><small>&nbsp;61,9%</small></li>
+          <li><i style="background:var(--d-4)"></i>Laki-laki <b>16</b><small>&nbsp;38,1%</small></li>
+        </ul>
+      </div>
+      <div class="fn">Usia median anak penerima 9 tahun (rentang 4–18). Responden perempuan 76,2%; kepala keluarga perempuan 11,9%; rumah tangga dengan anggota disabilitas 7,1%.</div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 15</span>
+      <h3>Realisasi sampel per AP</h3>
+      <div class="st">Jumlah responden terdata · 7 dari 21 AP</div>
+      <div class="hb" style="grid-template-columns:74px 1fr">
+        <span class="k">Simokerto</span><span class="b"><i style="width:100%"></i><span>10</span></span>
+        <span class="k">Bengkayang</span><span class="b"><i style="width:100%"></i><span>10</span></span>
+        <span class="k">Kubu Raya</span><span class="b"><i style="width:70%"></i><span>7</span></span>
+        <span class="k">Timor T. Sel.</span><span class="b"><i style="width:60%"></i><span>6</span></span>
+        <span class="k">Sumba B. Daya</span><span class="b"><i class="l" style="width:40%"></i><span>4</span></span>
+        <span class="k">Landak</span><span class="b"><i class="l" style="width:40%"></i><span>4</span></span>
+        <span class="k">Jakarta Utara</span><span class="b"><i class="ll" style="width:10%"></i><span>1</span></span>
+        <span class="k">14 AP lainnya</span><span class="b"><i class="g" style="width:0%"></i><span><em>belum ada data</em></span></span>
+      </div>
+      <div class="fn">Populasi 1.917 anak di 21 AP; target sampel 300 RC.</div>
+    </div>
+  </div>
+
+  <div class="thumbs">
+    <h4>Halaman laporan lainnya</h4>
+    <div class="tstrip" id="thumbs"></div>
+  </div>
+</section>
+
+<!-- ==================== P2 INFORMATION ==================== -->
+<section class="pg" id="p2">
+  <div class="top">
+    <div><h1>Area 1 — Penyediaan Informasi</h1>
+      <div class="sub">Tabel 1 &amp; 2</div></div>
+  </div>
+
+  <div class="params">
+    <div class="pm on"><div class="tab">Informasi Lengkap</div><div class="big">64,3%</div></div>
+    <div class="pm"><div class="tab">Informasi Terbatas</div><div class="big">35,7%</div></div>
+    <div class="pm"><div class="tab">Sub-item Terlemah</div><div class="big sm">83,3%</div></div>
+    <div class="pm"><div class="tab">Channel Dominan</div><div class="big sm">57,1%</div></div>
+    <div class="pm"><div class="tab">Gap Channel</div><div class="big">+31<small style="font-size:12px"> poin</small></div></div>
+  </div>
+
+  <div class="row r-21">
+    <div class="c">
+      <span class="tbl-tag">TABEL 1</span>
+      <h3>Information Completeness Funnel — 6 sub-item informasi GN</h3>
+      <div class="st">% RC menjawab Ya per sub-item · basis 42 responden</div>
+      <div class="fnl">
+        <div class="s"><div class="bar" style="width:100%">Informasi lokasi distribusi &nbsp;·&nbsp; 97,6%</div><span class="n">41/42</span></div>
+        <div class="s"><div class="bar" style="width:100%">Dokumen yang dibutuhkan &nbsp;·&nbsp; 97,6%</div><span class="n">41/42</span></div>
+        <div class="s"><div class="bar f2" style="width:97.5%">Batasan barang yang boleh dibeli &nbsp;·&nbsp; 95,2%</div><span class="n">40/42</span></div>
+        <div class="s"><div class="bar f2" style="width:92.7%">Nilai cash GN yang akan diterima &nbsp;·&nbsp; 90,5%</div><span class="n">38/42</span></div>
+        <div class="s"><div class="bar f3" style="width:87.8%">Kertas rencana belanja &nbsp;·&nbsp; 85,7%</div><span class="n">36/42</span></div>
+        <div class="s"><div class="bar f3" style="width:85.4%">Tahapan pencairan &nbsp;·&nbsp; 83,3%</div><span class="n">35/42</span></div>
+        <div class="s"><div class="bar f4" style="width:65.9%">LENGKAP SEMUA 6 ITEM &nbsp;·&nbsp; 64,3%</div><span class="n">27/42</span></div>
+      </div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 1</span>
+      <h3>Kelengkapan informasi per AP</h3>
+      <div class="st">% RC menerima informasi lengkap · label n per AP</div>
+      <div class="hb" style="grid-template-columns:78px 1fr">
+        <span class="k">Kubu Raya</span><span class="b"><i style="width:100%"></i><span>100% <em>n=7</em></span></span>
+        <span class="k">Jakarta Utara</span><span class="b"><i style="width:100%"></i><span>100% <em>n=1</em></span></span>
+        <span class="k">Landak</span><span class="b"><i style="width:75%"></i><span>75% <em>n=4</em></span></span>
+        <span class="k">Bengkayang</span><span class="b"><i style="width:70%"></i><span>70% <em>n=10</em></span></span>
+        <span class="k">Timor T. Sel.</span><span class="b"><i class="l" style="width:50%"></i><span>50% <em>n=6</em></span></span>
+        <span class="k">Simokerto</span><span class="b"><i class="l" style="width:40%"></i><span>40% <em>n=10</em></span></span>
+        <span class="k">Sumba B. Daya</span><span class="b"><i class="l" style="width:25%"></i><span>25% <em>n=4</em></span></span>
+      </div>
+      <div class="fn">Perbedaan antar-AP dilaporkan sebagai pola, bukan peringkat kinerja. Sebagian AP memiliki n sangat kecil.</div>
+    </div>
+  </div>
+
+  <div class="row r-2">
+    <div class="c">
+      <span class="tbl-tag">TABEL 2</span>
+      <h3>Channel informasi: yang diterima versus yang disukai</h3>
+      <div class="st">Sumber aktual dan preferensi · multi-respons · basis 42</div>
+      <div class="hb" style="grid-template-columns:126px 1fr">
+        <span class="k">Tatap muka staf WVI</span>
+        <span class="b"><i class="g" style="width:40.5%"></i><span>40,5% <em>aktual</em></span></span>
+        <span class="k"></span>
+        <span class="b"><i style="width:71.4%"></i><span>71,4% <em>preferensi</em></span></span>
+        <span class="k">Kader / PJI</span>
+        <span class="b"><i class="g" style="width:57.1%"></i><span>57,1% <em>aktual</em></span></span>
+        <span class="k"></span>
+        <span class="b"><i style="width:45.2%"></i><span>45,2% <em>preferensi</em></span></span>
+        <span class="k">Telepon / SMS</span>
+        <span class="b"><i class="g" style="width:0%"></i><span>0% <em>aktual</em></span></span>
+        <span class="k"></span>
+        <span class="b"><i style="width:7.1%"></i><span>7,1% <em>preferensi</em></span></span>
+        <span class="k">Media cetak</span>
+        <span class="b"><i class="g" style="width:0%"></i><span>0% <em>aktual</em></span></span>
+        <span class="k"></span>
+        <span class="b"><i style="width:0%"></i><span>0% <em>preferensi</em></span></span>
+        <span class="k">Pemerintah setempat</span>
+        <span class="b"><i class="g" style="width:0%"></i><span>0% <em>aktual</em></span></span>
+        <span class="k"></span>
+        <span class="b"><i style="width:0%"></i><span>0% <em>preferensi</em></span></span>
+      </div>
+      <div class="fn">Abu = channel yang diterima RC · oranye = channel yang diinginkan RC.</div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 2</span>
+      <h3>Kombinasi channel aktual dan preferensi</h3>
+      <div class="st">Kombinasi aktual × preferensi per RC</div>
+      <div class="dn">
+        <div class="ring" style="background:conic-gradient(var(--o) 0 40.5%, var(--o-3) 40.5% 71.4%, var(--d-4) 71.4% 100%)">
+          <div class="ctr"><b>71%</b><small>ingin staf</small></div>
+        </div>
+        <ul>
+          <li><i style="background:var(--o)"></i>Ingin staf, sudah dapat <b>17</b><small>&nbsp;40,5%</small></li>
+          <li><i style="background:var(--o-3)"></i>Ingin staf, belum dapat <b>13</b><small>&nbsp;31,0%</small></li>
+          <li><i style="background:var(--d-4)"></i>Tidak menyebut staf <b>12</b><small>&nbsp;28,6%</small></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== P3 FSP ==================== -->
+<section class="pg" id="p3">
+  <div class="top">
+    <div><h1>Area 2 — Kinerja Financial Service Provider</h1>
+      <div class="sub">Tabel 3 &amp; 4</div></div>
+  </div>
+
+  <div class="params">
+    <div class="pm"><div class="tab">Tipe FSP</div><div class="big">9</div></div>
+    <div class="pm on"><div class="tab">Jarak Median</div><div class="big sm">8 km</div></div>
+    <div class="pm"><div class="tab">Kunjungan</div><div class="big sm">1,3×</div></div>
+    <div class="pm"><div class="tab">Puas Layanan FSP</div><div class="big">90,5%</div></div>
+    <div class="pm"><div class="tab">Dipotong Biaya</div><div class="big">38,1%</div></div>
+  </div>
+
+  <div class="c" style="margin-bottom:9px">
+    <span class="tbl-tag">TABEL 3</span>
+    <h3>Aksesibilitas FSP — jarak, kunjungan, dan waktu tempuh per tipe FSP</h3>
+    <div class="st">Median per tipe FSP · basis 30 RC yang harus datang ke kantor FSP</div>
+    <table>
+      <thead><tr><th>Tipe FSP</th><th class="n">RC</th><th>Jarak median</th><th class="n">km</th>
+        <th>Waktu tempuh PP</th><th class="n">jam</th><th class="n">Kunjungan</th><th class="n">&gt;20 km</th></tr></thead>
+      <tbody>
+        <tr><td>Kantor Pos</td><td class="n">14</td><td><span class="mini"><i style="width:14%"></i></span></td><td class="n">14,0</td><td><span class="mini"><i style="width:56%"></i></span></td><td class="n">4,5</td><td class="n">1,0</td><td class="n">28,6%</td></tr>
+        <tr><td>Bank BRI</td><td class="n">5</td><td><span class="mini"><i style="width:12%"></i></span></td><td class="n">12,0</td><td class="n" style="text-align:left"><span class="mini"><i style="width:25%"></i></span></td><td class="n">2,0</td><td class="n">1,4</td><td class="n">20,0%</td></tr>
+        <tr><td>BRILink (agen)</td><td class="n">2</td><td><span class="mini"><i style="width:2%"></i></span></td><td class="n">2,0</td><td class="n" style="text-align:left"><span class="mini"><i style="width:38%"></i></span></td><td class="n">3,0</td><td class="n">1,0</td><td class="n">0,0%</td></tr>
+        <tr><td>Bank BNI</td><td class="n">5</td><td><span class="mini"><i style="width:8%"></i></span></td><td class="n">8,0</td><td class="n" style="text-align:left"><span class="mini"><i style="width:13%"></i></span></td><td class="n">1,0</td><td class="n">1,0</td><td class="n">20,0%</td></tr>
+        <tr><td>Kopdit Swasti Sari</td><td class="n">5</td><td><span class="mini"><i style="width:8%"></i></span></td><td class="n">8,0</td><td class="n" style="text-align:left"><span class="mini"><i style="width:13%"></i></span></td><td class="n">1,0</td><td class="n">1,4</td><td class="n">0,0%</td></tr>
+        <tr><td>Seabank / Mandiri</td><td class="n">2</td><td><span class="mini"><i style="width:20%"></i></span></td><td class="n">20,0</td><td class="n" style="text-align:left"><span class="mini"><i style="width:25%"></i></span></td><td class="n">2,0</td><td class="n">1,0</td><td class="n">0,0%</td></tr>
+        <tr><td>Bank lain / tidak diketahui</td><td class="n">9</td><td><span class="mini"><i class="g" style="width:26%"></i></span></td><td class="n">26,0</td><td class="n" style="text-align:left"><span class="mini"><i class="g" style="width:19%"></i></span></td><td class="n">1,5</td><td class="n">1,2</td><td class="n">44,4%</td></tr>
+      </tbody>
+    </table>
+      <div class="fn">Sembilan RC memilih “Bank lain” tanpa menyebut nama lembaga sehingga tidak dapat diatribusikan.</div>
+  </div>
+
+  <div class="row r-21">
+    <div class="c">
+      <span class="tbl-tag">TABEL 4</span>
+      <h3>Kepuasan dan kendala dominan per FSP</h3>
+      <div class="st">% puas atau sangat puas · frekuensi kendala · % dipotong biaya admin</div>
+      <table>
+        <thead><tr><th>Tipe FSP</th><th class="n">RC</th><th>Puas / sangat puas</th>
+          <th class="n">%</th><th class="n">Dipotong</th><th>Kendala dominan</th></tr></thead>
+        <tbody>
+          <tr><td>Bank BNI</td><td class="n">5</td><td><span class="mini"><i style="width:100%"></i></span></td><td class="n">100%</td><td class="n">80,0%</td><td>Potongan admin</td></tr>
+          <tr><td>Kopdit Swasti Sari</td><td class="n">5</td><td><span class="mini"><i style="width:100%"></i></span></td><td class="n">100%</td><td class="n">100%</td><td>Potongan admin rutin Rp 6.000</td></tr>
+          <tr><td>Bank BRI</td><td class="n">5</td><td><span class="mini"><i style="width:100%"></i></span></td><td class="n">100%</td><td class="n">20,0%</td><td>—</td></tr>
+          <tr><td>BRILink (agen)</td><td class="n">2</td><td><span class="mini"><i style="width:100%"></i></span></td><td class="n">100%</td><td class="n">0,0%</td><td>—</td></tr>
+          <tr><td>Kantor Pos</td><td class="n">14</td><td><span class="mini"><i style="width:85.7%"></i></span></td><td class="n">85,7%</td><td class="n">21,4%</td><td>Jarak jauh · jam layanan tutup</td></tr>
+          <tr><td>Bank lain / tidak diketahui</td><td class="n">9</td><td><span class="mini"><i class="g" style="width:88.9%"></i></span></td><td class="n">88,9%</td><td class="n">22,2%</td><td>Tidak ada kendaraan ke bank</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 4</span>
+      <h3>Transparansi potongan biaya</h3>
+      <div class="st">Apakah RC mengetahui dananya dipotong?</div>
+      <div class="dn">
+        <div class="ring" style="background:conic-gradient(var(--o) 0 38.1%, var(--d-4) 38.1% 69.1%, var(--d) 69.1% 100%)">
+          <div class="ctr"><b>31%</b><small>tidak tahu</small></div>
+        </div>
+        <ul>
+          <li><i style="background:var(--o)"></i>Ya, dipotong <b>16</b><small>&nbsp;38,1%</small></li>
+          <li><i style="background:var(--d-4)"></i>Tidak dipotong <b>13</b><small>&nbsp;31,0%</small></li>
+          <li><i style="background:var(--d)"></i>Tidak tahu <b>13</b><small>&nbsp;31,0%</small></li>
+        </ul>
+      </div>
+      <div class="fn">Nilai potongan yang dilaporkan: Rp 1.500 · 6.000 (5×) · 10.000 · 14.000 (3×) · 15.000 · 20.000 · 25.000 · 100.000. Median Rp 12.000.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== P4 DISTRIBUTION + TCA ==================== -->
+<section class="pg" id="p4">
+  <div class="top">
+    <div><h1>Area 3 — Proses Distribusi &amp; Total Cost of Access</h1>
+      <div class="sub">Tabel 5, 6 &amp; 7</div></div>
+  </div>
+
+  <div class="params">
+    <div class="pm on"><div class="tab">Cair ≤ 10 Hari</div><div class="big">56,1%</div></div>
+    <div class="pm"><div class="tab">Cair &gt; 15 Hari</div><div class="big">39,0%</div></div>
+    <div class="pm"><div class="tab">Sesuai Rencana</div><div class="big">95,2%</div></div>
+    <div class="pm"><div class="tab">Merasa Aman</div><div class="big">100%</div></div>
+    <div class="pm"><div class="tab">TCA Median</div><div class="big sm">1,8%</div></div>
+  </div>
+
+  <div class="row r-21">
+    <div class="c">
+      <span class="tbl-tag">TABEL 5</span>
+      <h3>Berapa lama RC menunggu sejak diinformasikan sampai dana dapat diambil?</h3>
+      <div class="st">Basis 41 responden · persepsi RC</div>
+      <div class="hb" style="grid-template-columns:80px 1fr">
+        <span class="k">&lt; 5 hari</span><span class="b"><i style="width:91.5%"></i><span>36,6% <em>15</em></span></span>
+        <span class="k">6 – 10 hari</span><span class="b"><i style="width:48.8%"></i><span>19,5% <em>8</em></span></span>
+        <span class="k">11 – 15 hari</span><span class="b"><i class="ll" style="width:12.2%"></i><span>4,9% <em>2</em></span></span>
+        <span class="k">&gt; 15 hari</span><span class="b"><i class="dk" style="width:79.3%"></i><span>31,7% <em>13</em></span></span>
+        <span class="k">&gt; 30 hari</span><span class="b"><i class="dk" style="width:18.3%"></i><span>7,3% <em>3</em></span></span>
+      </div>
+      <div class="fn">Angka ini berbasis persepsi RC. Pengukuran target Business Process 30 hari memerlukan Admin Data: tanggal instruksi transfer dan tanggal dana tersedia di FSP.</div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 7</span>
+      <h3>Keamanan dan perlakuan selama distribusi</h3>
+      <div class="st">% RC menjawab positif · basis 42 responden</div>
+      <div class="hb" style="grid-template-columns:112px 1fr">
+        <span class="k">Merasa aman</span><span class="b"><i style="width:100%"></i><span>100%</span></span>
+        <span class="k">Diperlakukan hormat</span><span class="b"><i style="width:100%"></i><span>100%</span></span>
+        <span class="k">Lokasi sesuai info</span><span class="b"><i style="width:95.2%"></i><span>95,2%</span></span>
+        <span class="k">Nominal sesuai info</span><span class="b"><i style="width:88.1%"></i><span>88,1%</span></span>
+        <span class="k">Proses dinilai mudah</span><span class="b"><i style="width:95.2%"></i><span>95,2%</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row r-12">
+    <div class="c">
+      <span class="tbl-tag">TABEL 6</span>
+      <h3>Komponen Total Cost of Access</h3>
+      <div class="st">Median per komponen · RC yang harus datang ke FSP</div>
+      <div class="hb" style="grid-template-columns:104px 1fr">
+        <span class="k">Biaya transport PP</span><span class="b"><i style="width:60%"></i><span>Rp 30.000</span></span>
+        <span class="k">Potongan admin FSP</span><span class="b"><i style="width:24%"></i><span>Rp 12.000</span></span>
+        <span class="k">Pendapatan hilang</span><span class="b"><i style="width:100%"></i><span>Rp 100.000 <em>n=5</em></span></span>
+        <span class="k">Waktu terpakai</span><span class="b"><i class="l" style="width:20%"></i><span>1 jam <em>PP</em></span></span>
+      </div>
+      <div class="fn">Kehilangan pendapatan dilaporkan 7 dari 42 RC; 10 RC menyatakan tidak bekerja sehingga tidak relevan — dua kategori ini tidak digabung. Satuan biaya transport pada data mentah belum seragam; nilai ditampilkan apa adanya tanpa konversi.</div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 6</span>
+      <h3>Total Cost of Access per AP dan per tipe FSP</h3>
+      <div class="st">Biaya akses sebagai % nilai GN yang diterima</div>
+      <div class="sc">
+        <i class="g" style="bottom:100%"></i><i class="g" style="bottom:75%"></i>
+        <i class="g" style="bottom:50%"></i><i class="g" style="bottom:25%"></i>
+        <i class="p" style="left:8%;bottom:93%;width:20px;height:20px"></i>
+        <span class="t" style="left:16%;bottom:93%">Timor T. Selatan · 18,7%</span>
+        <i class="p" style="left:38%;bottom:58%;width:16px;height:16px"></i>
+        <span class="t" style="left:47%;bottom:58%">Sumba B. Daya · 11,6%</span>
+        <i class="p" style="left:40%;bottom:76%;width:20px;height:20px"></i>
+        <span class="t" style="left:49%;bottom:78%">Kubu Raya · 15,2%</span>
+        <i class="p" style="left:9.5%;bottom:84%;width:24px;height:24px"></i>
+        <span class="t" style="left:18%;bottom:84%">Bengkayang · 16,7%</span>
+        <i class="p" style="left:54%;bottom:22%;width:16px;height:16px"></i>
+        <span class="t" style="left:62%;bottom:22%">Landak · 4,4%</span>
+        <i class="p d" style="left:1%;bottom:4%;width:24px;height:24px"></i>
+        <span class="t" style="left:9%;bottom:6%">Simokerto · 0%</span>
+      </div>
+      <div class="ax"><span>0 km</span><span>20 km</span><span>40 km</span><span>60 km</span></div>
+      <div class="fn">Sumbu x = jarak median ke FSP, sumbu y = biaya akses sebagai % nilai GN. Ukuran titik = jumlah RC.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== P5 UTILIZATION ==================== -->
+<section class="pg" id="p5">
+  <div class="top">
+    <div><h1>Area 4 — Penggunaan Dana &amp; Kecukupan</h1>
+      <div class="sub">Tabel 8</div></div>
+  </div>
+
+  <div class="params">
+    <div class="pm on"><div class="tab">Prioritas Anak</div><div class="big">95,2%</div></div>
+    <div class="pm"><div class="tab">Kebutuhan Terpenuhi</div><div class="big">59,5%</div></div>
+    <div class="pm"><div class="tab">Menabung</div><div class="big">38,1%</div></div>
+    <div class="pm"><div class="tab">Belanja Mudah</div><div class="big">92,9%</div></div>
+    <div class="pm"><div class="tab">Dampak Restriction</div><div class="big">35,7%</div></div>
+  </div>
+
+  <div class="row r-21">
+    <div class="c">
+      <span class="tbl-tag">TABEL 8</span>
+      <h3>Pola penggunaan dana per kategori pengeluaran</h3>
+      <div class="st">% RC membelanjakan per kategori · multi-respons · basis 42 responden</div>
+      <div class="hb" style="grid-template-columns:132px 1fr">
+        <span class="k">Pendidikan anak</span><span class="b"><i style="width:83.3%"></i><span>83,3% <em>35</em></span></span>
+        <span class="k">Pakaian</span><span class="b"><i style="width:76.2%"></i><span>76,2% <em>32</em></span></span>
+        <span class="k">Alas kaki</span><span class="b"><i style="width:66.7%"></i><span>66,7% <em>28</em></span></span>
+        <span class="k">Pangan pokok</span><span class="b"><i style="width:54.8%"></i><span>54,8% <em>23</em></span></span>
+        <span class="k">Tabungan</span><span class="b"><i class="l" style="width:38.1%"></i><span>38,1% <em>16</em></span></span>
+        <span class="k">Lainnya</span><span class="b"><i class="l" style="width:23.8%"></i><span>23,8% <em>10</em></span></span>
+        <span class="k">Transportasi</span><span class="b"><i class="ll" style="width:11.9%"></i><span>11,9% <em>5</em></span></span>
+        <span class="k">Kesehatan berobat</span><span class="b"><i class="ll" style="width:7.1%"></i><span>7,1% <em>3</em></span></span>
+        <span class="k">Air</span><span class="b"><i class="ll" style="width:7.1%"></i><span>7,1% <em>3</em></span></span>
+        <span class="k">Mainan anak</span><span class="b"><i class="ll" style="width:7.1%"></i><span>7,1% <em>3</em></span></span>
+        <span class="k">Rokok / kosmetik / alkohol</span><span class="b"><i class="g" style="width:0%"></i><span>0% <em>0</em></span></span>
+      </div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 8</span>
+      <h3>Sejauh mana kebutuhan dasar terpenuhi?</h3>
+      <div class="st">Skala 5 titik · basis 42 responden</div>
+      <div class="hb" style="grid-template-columns:118px 1fr">
+        <span class="k">Semua</span><span class="b"><i style="width:78.6%"></i><span>26,2% <em>11</em></span></span>
+        <span class="k">Sebagian besar</span><span class="b"><i style="width:100%"></i><span>33,3% <em>14</em></span></span>
+        <span class="k">Setengah</span><span class="b"><i class="l" style="width:50%"></i><span>16,7% <em>7</em></span></span>
+        <span class="k">Kurang dr setengah</span><span class="b"><i class="dk" style="width:57.1%"></i><span>19,0% <em>8</em></span></span>
+        <span class="k">Tidak ada</span><span class="b"><i class="dk" style="width:14.3%"></i><span>4,8% <em>2</em></span></span>
+      </div>
+      <div class="fn">Nilai GN berbeda antar-AP: median Rp 492 rb sampai Rp 1,36 jt. Alasan dominan kebutuhan belum terpenuhi: alasan keuangan (25 dari 31 RC).</div>
+    </div>
+  </div>
+
+  <div class="row r-2">
+    <div class="c">
+      <span class="tbl-tag">TABEL 8</span>
+      <h3>Kebutuhan dasar yang tidak dapat dipenuhi</h3>
+      <div class="st">% RC per kategori · basis 31 RC yang kebutuhannya tidak seluruhnya terpenuhi · multi-respons</div>
+      <div class="hb" style="grid-template-columns:98px 1fr">
+        <span class="k">Pangan dasar</span><span class="b"><i style="width:100%"></i><span>45,2% <em>14</em></span></span>
+        <span class="k">Rumah</span><span class="b"><i style="width:50%"></i><span>22,6% <em>7</em></span></span>
+        <span class="k">Kesehatan</span><span class="b"><i class="l" style="width:28.6%"></i><span>12,9% <em>4</em></span></span>
+        <span class="k">Transport</span><span class="b"><i class="l" style="width:28.6%"></i><span>12,9% <em>4</em></span></span>
+        <span class="k">Pendidikan</span><span class="b"><i class="l" style="width:28.6%"></i><span>12,9% <em>4</em></span></span>
+        <span class="k">Air</span><span class="b"><i class="ll" style="width:14.3%"></i><span>6,5% <em>2</em></span></span>
+        <span class="k">Komunikasi</span><span class="b"><i class="ll" style="width:14.3%"></i><span>6,5% <em>2</em></span></span>
+      </div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 8</span>
+      <h3>Apakah restriction list berdampak negatif terhadap RC?</h3>
+      <div class="st">RC dengan kebutuhan penting yang tidak diizinkan aturan pembelian WVI</div>
+      <div class="dn">
+        <div class="ring" style="background:conic-gradient(var(--o) 0 35.7%, var(--d-4) 35.7% 100%)">
+          <div class="ctr"><b>15</b><small>dari 42 RC</small></div>
+        </div>
+        <ul>
+          <li><i style="background:var(--o)"></i>Ada kebutuhan terhalang <b>15</b><small>&nbsp;35,7%</small></li>
+          <li><i style="background:var(--d-4)"></i>Tidak ada <b>27</b><small>&nbsp;64,3%</small></li>
+        </ul>
+      </div>
+      <div class="fn">Kebutuhan yang disebut terhalang: susu, gula, dan roti, diikuti jajanan anak dan kebutuhan orang tua.</div>
+    </div>
+  </div>
+
+  <div class="row r-3">
+    <div class="c">
+      <h3>Siapa yang memutuskan penggunaan dana?</h3>
+      <div class="st">Basis 42 responden</div>
+      <div class="hb" style="grid-template-columns:104px 1fr">
+        <span class="k">Anak penerima</span><span class="b"><i style="width:100%"></i><span>50,0% <em>21</em></span></span>
+        <span class="k">Bersama-sama</span><span class="b"><i style="width:66.7%"></i><span>33,3% <em>14</em></span></span>
+        <span class="k">Pasangan perempuan</span><span class="b"><i class="l" style="width:23.8%"></i><span>11,9% <em>5</em></span></span>
+        <span class="k">Pasangan laki-laki</span><span class="b"><i class="ll" style="width:4.8%"></i><span>2,4% <em>1</em></span></span>
+      </div>
+    </div>
+    <div class="c">
+      <h3>Di mana RC berbelanja?</h3>
+      <div class="st">Multi-respons · basis 42</div>
+      <div class="hb" style="grid-template-columns:88px 1fr">
+        <span class="k">Toko</span><span class="b"><i style="width:100%"></i><span>16</span></span>
+        <span class="k">Kios / warung</span><span class="b"><i style="width:87.5%"></i><span>14</span></span>
+        <span class="k">Pasar tradisional</span><span class="b"><i style="width:81.3%"></i><span>13</span></span>
+        <span class="k">Minimarket</span><span class="b"><i class="l" style="width:43.8%"></i><span>7</span></span>
+        <span class="k">Mall</span><span class="b"><i class="l" style="width:37.5%"></i><span>6</span></span>
+        <span class="k">Online</span><span class="b"><i class="g" style="width:0%"></i><span>0</span></span>
+      </div>
+    </div>
+    <div class="c">
+      <h3>Kondisi pasar setempat</h3>
+      <div class="st">Persepsi RC · basis 42</div>
+      <div class="hb" style="grid-template-columns:96px 1fr">
+        <span class="k">Harga naik</span><span class="b"><i style="width:64.3%"></i><span>64,3% <em>27</em></span></span>
+        <span class="k">Harga sama</span><span class="b"><i class="g" style="width:35.7%"></i><span>35,7% <em>15</em></span></span>
+        <span class="k">Barang tersedia</span><span class="b"><i style="width:95.2%"></i><span>95,2% <em>40</em></span></span>
+        <span class="k">Barang langka</span><span class="b"><i class="dk" style="width:4.8%"></i><span>4,8% <em>2</em></span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== P6 SATISFACTION + MODALITY ==================== -->
+<section class="pg" id="p6">
+  <div class="top">
+    <div><h1>Area 5 — Kepuasan &amp; Perbandingan Modalitas</h1>
+      <div class="sub">Tabel 9</div></div>
+  </div>
+
+  <div class="params">
+    <div class="pm on"><div class="tab">Puas Program GN</div><div class="big">92,9%</div></div>
+    <div class="pm"><div class="tab">Puas Layanan FSP</div><div class="big">90,5%</div></div>
+    <div class="pm"><div class="tab">Bantuan Relevan</div><div class="big">97,6%</div></div>
+    <div class="pm"><div class="tab">Lebih Suka CVP</div><div class="big">66,7%</div></div>
+    <div class="pm"><div class="tab">Subset Eks-Penerima</div><div class="big">21</div></div>
+  </div>
+
+  <div class="row r-21">
+    <div class="c">
+      <span class="tbl-tag">TABEL 9</span>
+      <h3>Perbandingan modalitas CVP versus modalitas lama per dimensi</h3>
+      <div class="st">Basis 21 RC eks-penerima GN barang · empat dimensi tujuan perubahan modalitas</div>
+      <div class="hb" style="grid-template-columns:150px 1fr">
+        <span class="k">Privasi &amp; dignity</span>
+        <span class="b"><i style="width:57.1%"></i><span>57,1% <em>lebih baik · 12</em></span></span>
+        <span class="k"></span><span class="b"><i class="g" style="width:42.9%"></i><span>42,9% <em>sama · 9</em></span></span>
+        <span class="k">Kecepatan proses</span>
+        <span class="b"><i style="width:52.4%"></i><span>52,4% <em>lebih cepat · 11</em></span></span>
+        <span class="k"></span><span class="b"><i class="g" style="width:38.1%"></i><span>38,1% <em>sama · 8</em></span></span>
+        <span class="k">Pilihan &amp; fleksibilitas</span>
+        <span class="b"><i style="width:52.4%"></i><span>52,4% <em>lebih baik · 11</em></span></span>
+        <span class="k"></span><span class="b"><i class="g" style="width:38.1%"></i><span>38,1% <em>sama · 8</em></span></span>
+        <span class="k">Kemudahan proses</span>
+        <span class="b"><i style="width:52.4%"></i><span>52,4% <em>lebih mudah · 11</em></span></span>
+        <span class="k"></span><span class="b"><i class="g" style="width:47.6%"></i><span>47,6% <em>sama · 10</em></span></span>
+      </div>
+      <div class="fn">Oranye = menilai CVP lebih baik · abu = menilai kedua modalitas sama saja.</div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 9</span>
+      <h3>Preferensi modalitas keseluruhan</h3>
+      <div class="st">Basis 21 RC eks-penerima</div>
+      <div class="dn">
+        <div class="ring" style="background:conic-gradient(var(--o) 0 66.7%, var(--d-4) 66.7% 95.2%, var(--d) 95.2% 100%)">
+          <div class="ctr"><b>67%</b><small>pilih CVP</small></div>
+        </div>
+        <ul>
+          <li><i style="background:var(--o)"></i>Modalitas CVP <b>14</b><small>&nbsp;66,7%</small></li>
+          <li><i style="background:var(--d-4)"></i>Sama saja <b>6</b><small>&nbsp;28,6%</small></li>
+          <li><i style="background:var(--d)"></i>Modalitas lama <b>1</b><small>&nbsp;4,8%</small></li>
+        </ul>
+      </div>
+      <div class="fn">Alasan yang disampaikan RC: dapat memperkirakan sisa uang, didampingi kader, dan dapat berbelanja sendiri. Satu RC memilih modalitas lama karena persyaratan bank dinilai terlalu banyak.</div>
+    </div>
+  </div>
+
+  <div class="row r-211">
+    <div class="c">
+      <span class="tbl-tag">TABEL 9</span>
+      <h3>Alasan dominan kepuasan</h3>
+      <div class="st">Basis 39 RC puas atau sangat puas · multi-respons</div>
+      <div class="hb" style="grid-template-columns:112px 1fr">
+        <span class="k">Jumlah cukup</span><span class="b"><i style="width:69.2%"></i><span>69,2% <em>27</em></span></span>
+        <span class="k">Persyaratan mudah</span><span class="b"><i style="width:59.0%"></i><span>59,0% <em>23</em></span></span>
+        <span class="k">Proses cepat</span><span class="b"><i style="width:48.7%"></i><span>48,7% <em>19</em></span></span>
+        <span class="k">Lainnya</span><span class="b"><i class="l" style="width:12.8%"></i><span>12,8% <em>5</em></span></span>
+      </div>
+    </div>
+    <div class="c">
+      <h3>Alasan ketidakpuasan</h3>
+      <div class="st">Basis 3 RC menjawab Biasa · hitungan mutlak</div>
+      <div class="hb" style="grid-template-columns:104px 1fr">
+        <span class="k">Jumlah kurang</span><span class="b"><i class="dk" style="width:100%"></i><span>3</span></span>
+        <span class="k">Proses lama</span><span class="b"><i class="dk" style="width:33%"></i><span>1</span></span>
+        <span class="k">Syarat banyak</span><span class="b"><i class="g" style="width:0%"></i><span>0</span></span>
+      </div>
+      <div class="fn">Basis 3 RC, ditampilkan sebagai hitungan mutlak. Tidak ada RC yang menjawab Tidak Puas atau Sangat Tidak Puas.</div>
+    </div>
+    <div class="c">
+      <h3>Kepuasan per AP</h3>
+      <div class="st">% puas atau sangat puas · label n</div>
+      <div class="hb" style="grid-template-columns:82px 1fr">
+        <span class="k">Simokerto</span><span class="b"><i style="width:100%"></i><span>100% <em>10</em></span></span>
+        <span class="k">Kubu Raya</span><span class="b"><i style="width:100%"></i><span>100% <em>7</em></span></span>
+        <span class="k">Timor T. Sel.</span><span class="b"><i style="width:100%"></i><span>100% <em>6</em></span></span>
+        <span class="k">Landak</span><span class="b"><i style="width:100%"></i><span>100% <em>4</em></span></span>
+        <span class="k">Bengkayang</span><span class="b"><i style="width:90%"></i><span>90% <em>10</em></span></span>
+        <span class="k">Sumba B. Daya</span><span class="b"><i class="dk" style="width:50%"></i><span>50% <em>4</em></span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== P7 ACCOUNTABILITY ==================== -->
+<section class="pg" id="p7">
+  <div class="top">
+    <div><h1>Area 6 — Akuntabilitas &amp; Mekanisme Komplain</h1>
+      <div class="sub">Tabel 11</div></div>
+  </div>
+
+  <div class="params">
+    <div class="pm"><div class="tab">Terima Info Program</div><div class="big">81,0%</div></div>
+    <div class="pm on"><div class="tab">Tahu Mekanisme</div><div class="big">61,9%</div></div>
+    <div class="pm"><div class="tab">Pernah Memakai</div><div class="big">38,5%</div></div>
+    <div class="pm"><div class="tab">Puas Penyelesaian</div><div class="big">100%</div></div>
+    <div class="pm"><div class="tab">Timbal Balik</div><div class="big">0</div></div>
+  </div>
+
+  <div class="row r-21">
+    <div class="c">
+      <span class="tbl-tag">TABEL 11</span>
+      <h3>Accountability Funnel — dari informasi ke penyelesaian komplain</h3>
+      <div class="st">Denominator berbeda di tiap tahap</div>
+      <div class="fnl">
+        <div class="s"><div class="bar" style="width:100%">Menerima informasi umum program WVI &nbsp;·&nbsp; 81,0%</div><span class="n">34/42</span></div>
+        <div class="drop">↓ 8 RC tidak menerima informasi program</div>
+        <div class="s"><div class="bar f2" style="width:76.4%">Mengetahui mekanisme komplain &nbsp;·&nbsp; 61,9%</div><span class="n">26/42</span></div>
+        <div class="drop">↓ 16 RC tidak tahu cara menyampaikan keluhan</div>
+        <div class="s"><div class="bar f3" style="width:29.4%">Pernah memakai mekanisme &nbsp;·&nbsp; 38,5%</div><span class="n">10/26</span></div>
+        <div class="drop">↓ 16 RC tahu tetapi belum pernah memakai</div>
+        <div class="s"><div class="bar f4" style="width:29.4%">Puas dengan penyelesaian &nbsp;·&nbsp; 100%</div><span class="n">10/10</span></div>
+      </div>
+      <div class="fn">Denominator berbeda tiap tahap: pemakaian mekanisme dihitung atas 26 RC yang mengetahuinya, bukan atas 42 RC.</div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 11</span>
+      <h3>Pengetahuan mekanisme per AP</h3>
+      <div class="st">% RC mengetahui mekanisme komplain · terurut · label n</div>
+      <div class="hb" style="grid-template-columns:82px 1fr">
+        <span class="k">Kubu Raya</span><span class="b"><i style="width:100%"></i><span>100% <em>7/7</em></span></span>
+        <span class="k">Timor T. Sel.</span><span class="b"><i style="width:100%"></i><span>100% <em>6/6</em></span></span>
+        <span class="k">Jakarta Utara</span><span class="b"><i style="width:100%"></i><span>100% <em>1/1</em></span></span>
+        <span class="k">Bengkayang</span><span class="b"><i class="l" style="width:60%"></i><span>60% <em>6/10</em></span></span>
+        <span class="k">Landak</span><span class="b"><i class="l" style="width:50%"></i><span>50% <em>2/4</em></span></span>
+        <span class="k">Simokerto</span><span class="b"><i class="dk" style="width:40%"></i><span>40% <em>4/10</em></span></span>
+        <span class="k">Sumba B. Daya</span><span class="b"><i class="dk" style="width:2%"></i><span>0% <em>0/4</em></span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row r-21">
+    <div class="c">
+      <span class="tbl-tag">TABEL 11</span>
+      <h3>Lewat saluran apa RC ingin menyampaikan keluhan?</h3>
+      <div class="st">Multi-respons · basis 42 responden · dibandingkan saluran resmi yang tersedia</div>
+      <div class="hb" style="grid-template-columns:132px 1fr">
+        <span class="k">Kader / PJI</span><span class="b"><i style="width:52.4%"></i><span>52,4% <em>22</em></span></span>
+        <span class="k">Langsung staf WVI</span><span class="b"><i style="width:50.0%"></i><span>50,0% <em>21</em></span></span>
+        <span class="k">Kader Posyandu</span><span class="b"><i class="l" style="width:9.5%"></i><span>9,5% <em>4</em></span></span>
+        <span class="k">Telepon WVI</span><span class="b"><i class="l" style="width:9.5%"></i><span>9,5% <em>4</em></span></span>
+        <span class="k">Tokoh masyarakat</span><span class="b"><i class="ll" style="width:4.8%"></i><span>4,8% <em>2</em></span></span>
+        <span class="k">SMS aduan</span><span class="b"><i class="ll" style="width:2.4%"></i><span>2,4% <em>1</em></span></span>
+        <span class="k">Pemerintah Desa</span><span class="b"><i class="g" style="width:0%"></i><span>0%</span></span>
+        <span class="k">Kotak suara</span><span class="b"><i class="g" style="width:0%"></i><span>0%</span></span>
+        <span class="k">Pertemuan dusun</span><span class="b"><i class="g" style="width:0%"></i><span>0%</span></span>
+      </div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 11</span>
+      <h3>Indikasi permintaan timbal balik</h3>
+      <div class="st">Agregat tanpa identitas</div>
+      <div style="text-align:center;padding:22px 0 14px">
+        <div style="font-size:46px;font-weight:700;line-height:1">0</div>
+        <div style="font-size:10px;color:var(--d-3);margin-top:4px">laporan dari 42 RC</div>
+      </div>
+      <div class="hb" style="grid-template-columns:130px 1fr">
+        <span class="k">Tidak ada permintaan</span><span class="b"><i style="width:100%"></i><span>42 <em>100%</em></span></span>
+        <span class="k">Ada permintaan</span><span class="b"><i class="dk" style="width:0%"></i><span>0</span></span>
+      </div>
+      <div class="fn">Dilaporkan sebagai nol laporan, bukan nol kejadian. Visual tidak dipasangkan dengan nama, enumerator, atau kecamatan.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== P8 COMPLIANCE + QUAL + PRIORITY ==================== -->
+<section class="pg" id="p8">
+  <div class="top">
+    <div><h1>Area 7 — Compliance, Tema Kualitatif &amp; Prioritas</h1>
+      <div class="sub">Tabel 10, 12, 13 &amp; 14 · menunggu sumber data non-survei</div></div>
+  </div>
+
+  <div class="note">
+    <b>Empat tabel di halaman ini memerlukan sumber data di luar Household Survey.</b>
+    Tabel 12 dari Document Review 30 file GN; Tabel 10 dari coding KII FSP, KII Cadre, dan FGD Staff;
+    Tabel 13 dari coding open-ended survei; Tabel 14 dari sintesis lintas sumber.
+    Struktur visual dan measure sudah disiapkan; isi menunggu data.
+  </div>
+
+  <div class="row r-2">
+    <div class="c">
+      <span class="tbl-tag">TABEL 12</span>
+      <h3>Compliance Scorecard — Document Review</h3>
+      <div class="st">% file compliant per item SOP · basis 30 file GN</div>
+      <div class="hb" style="grid-template-columns:150px 1fr">
+        <span class="k">Approval BP tersedia</span><span class="b"><i class="g" style="width:0%"></i><span><em>menunggu data</em></span></span>
+        <span class="k">Dokumen identitas RC</span><span class="b"><i class="g" style="width:0%"></i><span><em>menunggu data</em></span></span>
+        <span class="k">Bukti transfer FSP</span><span class="b"><i class="g" style="width:0%"></i><span><em>menunggu data</em></span></span>
+        <span class="k">Laporan TYL</span><span class="b"><i class="g" style="width:0%"></i><span><em>menunggu data</em></span></span>
+        <span class="k">Dokumentasi foto</span><span class="b"><i class="g" style="width:0%"></i><span><em>menunggu data</em></span></span>
+        <span class="k">Recon Finance–Sponsorship</span><span class="b"><i class="g" style="width:0%"></i><span><em>menunggu data</em></span></span>
+        <span class="k">Overall compliance score</span><span class="b"><i class="g" style="width:0%"></i><span><em>menunggu data</em></span></span>
+      </div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 10</span>
+      <h3>Matriks tema lintas sumber kualitatif</h3>
+      <div class="st">Tema × sumber · KII FSP, KII Cadre, FGD Staff · coding Plus / Minus / Interest</div>
+      <table class="heat">
+        <thead><tr><th>Tema</th><th style="text-align:center">KII FSP</th>
+          <th style="text-align:center">KII Cadre</th><th style="text-align:center">FGD Staff</th>
+          <th class="n">Frek.</th></tr></thead>
+        <tbody>
+          <tr><td>Komunikasi dua arah FSP ↔ WVI</td>
+            <td class="h" style="background:#FFF1EA;color:#B03D06">menunggu</td>
+            <td class="h" style="background:#F5F5F7;color:var(--d-4)">—</td>
+            <td class="h" style="background:#FFF1EA;color:#B03D06">menunggu</td><td class="n">—</td></tr>
+          <tr><td>Reguleritas laporan FSP ke WVI</td>
+            <td class="h" style="background:#FFF1EA;color:#B03D06">menunggu</td>
+            <td class="h" style="background:#F5F5F7;color:var(--d-4)">—</td>
+            <td class="h" style="background:#F5F5F7;color:var(--d-4)">—</td><td class="n">—</td></tr>
+          <tr><td>Approval &amp; kesesuaian tahapan BP</td>
+            <td class="h" style="background:#F5F5F7;color:var(--d-4)">—</td>
+            <td class="h" style="background:#F5F5F7;color:var(--d-4)">—</td>
+            <td class="h" style="background:#FFF1EA;color:#B03D06">menunggu</td><td class="n">—</td></tr>
+          <tr><td>Reporting TYL &amp; foto</td>
+            <td class="h" style="background:#F5F5F7;color:var(--d-4)">—</td>
+            <td class="h" style="background:#F5F5F7;color:var(--d-4)">—</td>
+            <td class="h" style="background:#FFF1EA;color:#B03D06">menunggu</td><td class="n">—</td></tr>
+          <tr><td>Recon Finance–Sponsorship</td>
+            <td class="h" style="background:#F5F5F7;color:var(--d-4)">—</td>
+            <td class="h" style="background:#F5F5F7;color:var(--d-4)">—</td>
+            <td class="h" style="background:#FFF1EA;color:#B03D06">menunggu</td><td class="n">—</td></tr>
+          <tr><td>Peran kader dalam pendampingan RC</td>
+            <td class="h" style="background:#F5F5F7;color:var(--d-4)">—</td>
+            <td class="h" style="background:#FFF1EA;color:#B03D06">menunggu</td>
+            <td class="h" style="background:#FFF1EA;color:#B03D06">menunggu</td><td class="n">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="row r-21">
+    <div class="c">
+      <span class="tbl-tag">TABEL 13</span>
+      <h3>Tema "satu hal yang ingin diubah" dan "yang paling baik"</h3>
+      <div class="st">Coding tematik jawaban terbuka · 42 + 42 jawaban terkumpul</div>
+      <div class="pending">
+        <b>Menunggu coding tematik</b><br>
+        Jawaban terbuka sudah terkumpul tetapi belum dikoding. Frekuensi per tema baru
+        dilaporkan setelah coding dijalankan atas seluruh sampel.<br>
+        Visual final: ranked themes + parafrase representatif tanpa identitas.
+      </div>
+    </div>
+
+    <div class="c">
+      <span class="tbl-tag">TABEL 14</span>
+      <h3>Prioritization Matrix — Impact × Effort</h3>
+      <div class="st">Sumbu x effort, sumbu y impact</div>
+      <div class="pending">
+        <b>Menunggu sintesis lintas sumber</b><br>
+        Skor Impact (1–5) × Effort (1–5) dan PIC per rekomendasi diisi setelah
+        Household Survey, Document Review, KII, dan FGD selesai dan dibaca bersama.
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="foot" id="foot"></div>
+
+</main>
+</div>
+
+<script>
+const P=[
+ ["p1","Overview","CVP for GN — Overview","Obj 1–5 · roll-up 7 assessment area"],
+ ["p2","Informasi","Area 1 — Penyediaan Informasi","Tabel 1 &amp; 2"],
+ ["p3","FSP","Area 2 — Kinerja FSP","Tabel 3 &amp; 4"],
+ ["p4","Distribusi","Area 3 — Distribusi &amp; TCA","Tabel 5, 6 &amp; 7"],
+ ["p5","Penggunaan","Area 4 — Penggunaan Dana","Tabel 8"],
+ ["p6","Kepuasan","Area 5 — Kepuasan &amp; Modalitas","Tabel 9"],
+ ["p7","Akuntabilitas","Area 6 — Akuntabilitas","Tabel 11"],
+ ["p8","Compliance","Area 7 — Compliance &amp; Sintesis","Tabel 10, 12, 13 &amp; 14"]
+];
+const nav=document.getElementById('nav'), th=document.getElementById('thumbs');
+function go(id){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  nav.querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-current',P[i][0]===id?'true':'false'));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+P.forEach(([id,label],i)=>{
+  const b=document.createElement('button');
+  b.textContent=label; b.setAttribute('aria-current',i===0?'true':'false');
+  b.onclick=()=>go(id); nav.appendChild(b);
+});
+P.slice(1).forEach(([id,label,title,tag])=>{
+  const d=document.createElement('div'); d.className='th'; d.onclick=()=>go(id);
+  d.innerHTML='<div class="tt">'+title+'</div><div style="font-size:7.5px">'+tag+'</div>';
+  th.appendChild(d);
+});
+document.getElementById('foot').innerHTML =
+ 'Sumber: Household Survey KoboToolbox \u2014 42 responden terkumpul dari target sampel 300 RC di 21 Area Program (populasi 1.917 anak). '+
+ 'Denominator per indikator ditampilkan pada subjudul tiap visual. Perbedaan antar-kelompok dilaporkan sebagai pola, bukan hubungan sebab-akibat. '+
+ 'Target program belum tersedia, sehingga seluruh nilai disajikan sebagai aktual dan perbandingan antar-AP. '+
+ 'Halaman ini adalah tampilan data sementara, bukan laporan final.';
+</script>
+</body>
+</html>
