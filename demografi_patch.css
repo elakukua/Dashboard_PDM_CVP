@@ -1,0 +1,29 @@
+/* =========================================================================
+   PATCH CSS — Halaman "Demografi"
+   Tempel sebelum </style> pada index.html
+   ========================================================================= */
+
+/* ---------- grid kartu demografi (berdampingan, bukan berderet vertikal) ---------- */
+.cv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:9px}
+/* gap 9px = konsisten dengan .row di dashboard ini; ubah ke 20px bila ingin lebih lega */
+.cv-grid.g3{grid-template-columns:repeat(3,1fr)}
+.cv-grid>.c{height:100%}                 /* kartu sama tinggi per baris */
+.cv-grid>.c.sp2{grid-column:1/-1}        /* utilitas: kartu membentang penuh */
+@media(max-width:1100px){.cv-grid,.cv-grid.g3{grid-template-columns:1fr}}
+
+/* ---------- blok angka statistik ringkas di dalam kartu ---------- */
+.dgs{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 10px;flex:0 0 auto}
+.dgs>div{flex:1 1 0;min-width:88px;background:var(--page);border:1px solid var(--line);
+  border-radius:8px;padding:8px 10px}
+.dgs b{display:block;font-size:20px;font-weight:700;line-height:1.05;letter-spacing:-.3px;
+  font-variant-numeric:tabular-nums}
+.dgs b .u{font-size:11px;color:var(--d-3)}
+.dgs small{display:block;margin-top:3px;font-size:8.5px;color:var(--d-3);line-height:1.35}
+
+/* persen pada legenda donut (sebelumnya <em> tampil miring tanpa gaya) */
+.dn li em{font-style:normal;color:var(--d-3);font-size:9.5px;margin-left:3px}
+
+/* ---------- ikon pada menu samping ---------- */
+aside nav button{display:flex;align-items:center;gap:7px}
+aside nav button svg{flex:0 0 auto;width:13px;height:13px;stroke:currentColor;fill:none;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
