@@ -1,14 +1,17 @@
-/* =========================================================================
-   PATCH CSS — Halaman "Demografi"
-   Tempel sebelum </style> pada index.html
-   ========================================================================= */
+/* PATCH CSS — Halaman "Demografi" (PDM CVP for GN Dashboard)
+   Tempel di DALAM blok style pada index.html, tepat sebelum tag penutupnya.
 
-/* ---------- grid kartu demografi (berdampingan, bukan berderet vertikal) ---------- */
+   PENTING: jangan pernah menulis tag penutup style secara literal di dalam
+   komentar CSS. Parser HTML menutup elemen style pada kemunculan string itu
+   walau berada di dalam komentar, sehingga sisa CSS bocor sebagai teks biasa
+   dan ikon SVG kehilangan pembatas ukuran. */
+
+/* ---------- grid kartu demografi ---------- */
 .cv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:9px}
-/* gap 9px = konsisten dengan .row di dashboard ini; ubah ke 20px bila ingin lebih lega */
+/* gap 9px = konsisten dengan .row; ubah ke 20px bila ingin lebih lega */
 .cv-grid.g3{grid-template-columns:repeat(3,1fr)}
-.cv-grid>.c{height:100%}                 /* kartu sama tinggi per baris */
-.cv-grid>.c.sp2{grid-column:1/-1}        /* utilitas: kartu membentang penuh */
+.cv-grid>.c{height:100%}
+.cv-grid>.c.sp2{grid-column:1/-1}
 @media(max-width:1100px){.cv-grid,.cv-grid.g3{grid-template-columns:1fr}}
 
 /* ---------- blok angka statistik ringkas di dalam kartu ---------- */
@@ -20,7 +23,7 @@
 .dgs b .u{font-size:11px;color:var(--d-3)}
 .dgs small{display:block;margin-top:3px;font-size:8.5px;color:var(--d-3);line-height:1.35}
 
-/* persen pada legenda donut (sebelumnya <em> tampil miring tanpa gaya) */
+/* persen pada legenda donut */
 .dn li em{font-style:normal;color:var(--d-3);font-size:9.5px;margin-left:3px}
 
 /* ---------- ikon pada menu samping ---------- */
