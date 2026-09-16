@@ -1,25 +1,24 @@
-/* =========================================================================
-   PATCH — Halaman "Demografi" untuk PDM CVP for GN Dashboard
+/* PATCH JS — Halaman "Demografi" (PDM CVP for GN Dashboard)
    -------------------------------------------------------------------------
-   4 titik tempel di index.html:
+   Semua blok di bawah ditempel di DALAM blok script pada index.html:
 
    [A] DEMO + merge   -> setelah  const FSP_ALL = [...];
    [B] page_demografi -> sebelum  const PAGES=[
-   [C] const PAGES=[] -> GANTI array PAGES yang lama
-   [D] nav loop       -> GANTI  PAGES.forEach(([id,label])=>{ ... });
+   [C] ICO + PAGES    -> GANTI array PAGES yang lama
+   [D] loop menu      -> GANTI  PAGES.forEach(([id,label])=>{ ... });
 
-   Catatan: array DATA bawaan dashboard belum memuat kolom demografi
-   (status sekolah, hubungan dgn KK, usia responden/KK, komposisi anggota RT,
-   jenis kebutuhan khusus). Blok [A] menambahkannya dari raw export
-   PDM_CVP.xlsx; urutan baris DEMO sudah diverifikasi 1:1 dengan DATA
-   (46 record, dicek lewat ap/usiaAnak/jkAnak/pendKk/disab/anggota/rumah).
-   ========================================================================= */
+   Array DATA bawaan dashboard belum memuat kolom demografi (status sekolah,
+   hubungan dengan KK, usia responden/KK, komposisi anggota RT, jenis
+   kebutuhan khusus). Blok [A] menambahkannya dari raw export PDM_CVP.xlsx;
+   urutan baris DEMO terverifikasi 1:1 dengan DATA untuk 46 record.
+   ------------------------------------------------------------------------- */
 
 
 /* ======================= [A] DATA DEMOGRAFI ============================= */
-/* Tempel setelah const FSP_ALL = [...];
-   Field baru: sekolah, usiaResp, hubKk, usiaKk, angg018, anggDws,
-               anggKerja, anggHamil, disJenis[] */
+/* ---------- field demografi tambahan dari raw export PDM_CVP.xlsx ----------
+   Urutan baris DEMO identik dengan urutan baris DATA (46 record, terverifikasi).
+   Field: sekolah, usiaResp, hubKk, usiaKk, angg018, anggDws, anggKerja,
+          anggHamil, disJenis[] */
 const DEMO = [
   {"sekolah": "PAUD", "usiaResp": 45, "hubKk": "Isteri", "usiaKk": 44, "angg018": 2, "anggDws": 2, "anggKerja": 1, "anggHamil": 0, "disJenis": []},
   {"sekolah": "TK", "usiaResp": 45, "hubKk": "Isteri", "usiaKk": 50, "angg018": 3, "anggDws": 4, "anggKerja": 3, "anggHamil": 0, "disJenis": []},
@@ -72,11 +71,7 @@ DEMO.forEach((d,i)=>{ if(DATA[i]) Object.assign(DATA[i],d); });
 
 
 /* ============== [B] KONSTANTA, HELPER & page_demografi ================= */
-/* =========================================================================
-   PATCH JS — Halaman "Demografi"  (blok 2, 3, 4)
-   Tempel SEBELUM baris  const PAGES=[
-   ========================================================================= */
-
+/* ================= AREA 0 — DEMOGRAFI ================= */
 /* ---------- konstanta urutan kategori (mengikuti XLSForm) ---------- */
 const SEKOLAH=[['Balita','Balita / belum sekolah'],['PAUD','PAUD'],['TK','TK'],
   ['SD/sederajat','SD / sederajat'],['SMP/sederajat','SMP / sederajat'],
@@ -279,22 +274,18 @@ function page_demografi(R){
 
 
 /* ============ [C] REGISTRASI HALAMAN + IKON NAVIGASI ================== */
-/* =========================================================================
-   PATCH JS — blok 1: registrasi halaman + ikon navigasi
-   Ganti array PAGES dan loop pembangun menu di index.html dengan blok ini
-   ========================================================================= */
-
-/* ikon menu: inline SVG, mewarisi warna tombol (currentColor) */
+/* ikon menu: inline SVG. Atribut width/height/fill/stroke ditulis langsung pada
+   elemen svg agar ikon tetap benar walau CSS belum termuat. */
 const ICO={
-  cover:'<svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
-  grid :'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
-  users:'<svg viewBox="0 0 24 24"><path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="3.2"/><path d="M22 19v-1a4 4 0 0 0-3-3.87"/><path d="M16.5 4.2a3.2 3.2 0 0 1 0 5.6"/></svg>',
-  info :'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>',
-  bank :'<svg viewBox="0 0 24 24"><path d="M3 10 12 4l9 6"/><path d="M5 10v9"/><path d="M19 10v9"/><path d="M3 20h18"/><path d="M10 20v-6h4v6"/></svg>',
-  truck:'<svg viewBox="0 0 24 24"><rect x="2" y="7" width="12" height="9" rx="1"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="6.5" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>',
-  wallet:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10.5h18"/><path d="M16.5 14.8h.01"/></svg>',
-  smile:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.2a4.4 4.4 0 0 0 7 0"/><path d="M9 9.5h.01"/><path d="M15 9.5h.01"/></svg>',
-  shield:'<svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 7.6-8 9-4.8-1.4-8-4.5-8-9V6z"/><path d="M8.8 12.2l2.3 2.3 4.1-4.6"/></svg>'
+  cover:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
+  grid :'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  users:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="3.2"/><path d="M22 19v-1a4 4 0 0 0-3-3.87"/><path d="M16.5 4.2a3.2 3.2 0 0 1 0 5.6"/></svg>',
+  info :'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>',
+  bank :'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10 12 4l9 6"/><path d="M5 10v9"/><path d="M19 10v9"/><path d="M3 20h18"/><path d="M10 20v-6h4v6"/></svg>',
+  truck:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="12" height="9" rx="1"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="6.5" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>',
+  wallet:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10.5h18"/><path d="M16.5 14.8h.01"/></svg>',
+  smile:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.2a4.4 4.4 0 0 0 7 0"/><path d="M9 9.5h.01"/><path d="M15 9.5h.01"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.6-8 9-4.8-1.4-8-4.5-8-9V6z"/><path d="M8.8 12.2l2.3 2.3 4.1-4.6"/></svg>'
 };
 
 /* [id, label menu, H1, sub-judul, fungsi render, ikon] */
@@ -312,7 +303,6 @@ const PAGES=[
 
 
 /* ==================== [D] LOOP PEMBANGUN MENU ========================= */
-/* loop pembangun menu: ambil elemen ke-6 (ikon) dan render bersama label */
 PAGES.forEach(([id,label,,,,icon])=>{
   const b=document.createElement('button');
   b.innerHTML=(icon||'')+'<span>'+label+'</span>';
