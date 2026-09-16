@@ -277,17 +277,12 @@ main{display:flex;flex-direction:column}
 #pages>.pg-cover.on{flex:1}
 .pg.pg-cover .cover{margin-bottom:0}
 
-/* =========================================================================
-   PATCH CSS — Halaman "Demografi"
-   Tempel sebelum </style> pada index.html
-   ========================================================================= */
-
-/* ---------- grid kartu demografi (berdampingan, bukan berderet vertikal) ---------- */
+/* ---------- grid kartu demografi ---------- */
 .cv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:9px}
-/* gap 9px = konsisten dengan .row di dashboard ini; ubah ke 20px bila ingin lebih lega */
+/* gap 9px = konsisten dengan .row; ubah ke 20px bila ingin lebih lega */
 .cv-grid.g3{grid-template-columns:repeat(3,1fr)}
-.cv-grid>.c{height:100%}                 /* kartu sama tinggi per baris */
-.cv-grid>.c.sp2{grid-column:1/-1}        /* utilitas: kartu membentang penuh */
+.cv-grid>.c{height:100%}
+.cv-grid>.c.sp2{grid-column:1/-1}
 @media(max-width:1100px){.cv-grid,.cv-grid.g3{grid-template-columns:1fr}}
 
 /* ---------- blok angka statistik ringkas di dalam kartu ---------- */
@@ -299,7 +294,7 @@ main{display:flex;flex-direction:column}
 .dgs b .u{font-size:11px;color:var(--d-3)}
 .dgs small{display:block;margin-top:3px;font-size:8.5px;color:var(--d-3);line-height:1.35}
 
-/* persen pada legenda donut (sebelumnya <em> tampil miring tanpa gaya) */
+/* persen pada legenda donut */
 .dn li em{font-style:normal;color:var(--d-3);font-size:9.5px;margin-left:3px}
 
 /* ---------- ikon pada menu samping ---------- */
@@ -336,8 +331,8 @@ const AP_ALL = [...new Set(DATA.map(r=>r.ap))].sort((a,b)=>
 const FSP_ALL = [...new Set(DATA.map(r=>r.fsp))].sort((a,b)=>
   DATA.filter(r=>r.fsp===b).length - DATA.filter(r=>r.fsp===a).length || a.localeCompare(b));
 
-/* ---------- tambahan field demografi dari raw export PDM_CVP.xlsx ----------
-   Urutan baris DEMO = urutan baris DATA (sudah diverifikasi 1:1, 46 record).
+/* ---------- field demografi tambahan dari raw export PDM_CVP.xlsx ----------
+   Urutan baris DEMO identik dengan urutan baris DATA (46 record, terverifikasi).
    Field: sekolah, usiaResp, hubKk, usiaKk, angg018, anggDws, anggKerja,
           anggHamil, disJenis[] */
 const DEMO = [
@@ -1219,11 +1214,7 @@ function cover(R){
    +'<div class="prog">Wahana Visi Indonesia &nbsp;&middot;&nbsp; 21 Area Program &nbsp;&middot;&nbsp; Siklus 2026</div>'
    +'</div></div>';
 }
-/* =========================================================================
-   PATCH JS — Halaman "Demografi"  (blok 2, 3, 4)
-   Tempel SEBELUM baris  const PAGES=[
-   ========================================================================= */
-
+/* ================= AREA 0 — DEMOGRAFI ================= */
 /* ---------- konstanta urutan kategori (mengikuti XLSForm) ---------- */
 const SEKOLAH=[['Balita','Balita / belum sekolah'],['PAUD','PAUD'],['TK','TK'],
   ['SD/sederajat','SD / sederajat'],['SMP/sederajat','SMP / sederajat'],
@@ -1424,22 +1415,18 @@ function page_demografi(R){
   return K + '<div class="cv-grid">'+G.join('')+'</div>' + row('r-1',[apCard]) + dqBox;
 }
 
-/* =========================================================================
-   PATCH JS — blok 1: registrasi halaman + ikon navigasi
-   Ganti array PAGES dan loop pembangun menu di index.html dengan blok ini
-   ========================================================================= */
-
-/* ikon menu: inline SVG, mewarisi warna tombol (currentColor) */
+/* ikon menu: inline SVG. Atribut width/height/fill/stroke ditulis langsung pada
+   elemen svg agar ikon tetap benar walau CSS belum termuat. */
 const ICO={
-  cover:'<svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
-  grid :'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
-  users:'<svg viewBox="0 0 24 24"><path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="3.2"/><path d="M22 19v-1a4 4 0 0 0-3-3.87"/><path d="M16.5 4.2a3.2 3.2 0 0 1 0 5.6"/></svg>',
-  info :'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>',
-  bank :'<svg viewBox="0 0 24 24"><path d="M3 10 12 4l9 6"/><path d="M5 10v9"/><path d="M19 10v9"/><path d="M3 20h18"/><path d="M10 20v-6h4v6"/></svg>',
-  truck:'<svg viewBox="0 0 24 24"><rect x="2" y="7" width="12" height="9" rx="1"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="6.5" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>',
-  wallet:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10.5h18"/><path d="M16.5 14.8h.01"/></svg>',
-  smile:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.2a4.4 4.4 0 0 0 7 0"/><path d="M9 9.5h.01"/><path d="M15 9.5h.01"/></svg>',
-  shield:'<svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 7.6-8 9-4.8-1.4-8-4.5-8-9V6z"/><path d="M8.8 12.2l2.3 2.3 4.1-4.6"/></svg>'
+  cover:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
+  grid :'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  users:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1"/><circle cx="9" cy="7" r="3.2"/><path d="M22 19v-1a4 4 0 0 0-3-3.87"/><path d="M16.5 4.2a3.2 3.2 0 0 1 0 5.6"/></svg>',
+  info :'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>',
+  bank :'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10 12 4l9 6"/><path d="M5 10v9"/><path d="M19 10v9"/><path d="M3 20h18"/><path d="M10 20v-6h4v6"/></svg>',
+  truck:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="12" height="9" rx="1"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="6.5" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg>',
+  wallet:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10.5h18"/><path d="M16.5 14.8h.01"/></svg>',
+  smile:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.2a4.4 4.4 0 0 0 7 0"/><path d="M9 9.5h.01"/><path d="M15 9.5h.01"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.6-8 9-4.8-1.4-8-4.5-8-9V6z"/><path d="M8.8 12.2l2.3 2.3 4.1-4.6"/></svg>'
 };
 
 /* [id, label menu, H1, sub-judul, fungsi render, ikon] */
@@ -1454,7 +1441,6 @@ const PAGES=[
  ['p6','Kepuasan','Area 5 \u2014 Kepuasan &amp; Perbandingan Modalitas','Tabel 9',pg6,ICO.smile],
  ['p7','Akuntabilitas','Area 6 \u2014 Akuntabilitas','Tabel 11',pg7,ICO.shield]
 ];
-
 const COVER_ID='p0';
 let current=COVER_ID;
 
@@ -1488,7 +1474,6 @@ function go(id){
   syncChrome();
   window.scrollTo({top:0,behavior:'smooth'});
 }
-/* loop pembangun menu: ambil elemen ke-6 (ikon) dan render bersama label */
 PAGES.forEach(([id,label,,,,icon])=>{
   const b=document.createElement('button');
   b.innerHTML=(icon||'')+'<span>'+label+'</span>';
